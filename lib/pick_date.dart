@@ -36,14 +36,37 @@ class _PickDateState extends State<PickDate> {
         var firstDate = d[0]['SchTDate'].split('-');
         var lastDate = d[d.length - 1]['SchTDate'].split('-');
 
+        var c_s_id = d[0]['CinemaScheduleID'];
+
+
+        http://gogophp.binarynumbers.io/api/Programming/GetSchTime?CinemaScheduleID=125&CategoryID=4
+
         mDateList = List();
         mDateList.add(DateTimeModel(int.parse(firstDate[0]), int.parse(firstDate[1]), int.parse(firstDate[2])));
         mDateList.add(DateTimeModel(int.parse(lastDate[0]), int.parse(lastDate[1]), int.parse(lastDate[2])));
 
         _date_list = d;
+
+        _fetchTimeList(c_s_id);
+
       }
 
 
+    }
+  }
+
+  void _fetchTimeList(c_s_id) async {
+
+    print('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
+    final res = await http.get('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
+    if (res.statusCode == 200){
+      final d = json.decode(res.body);
+      if(d.length > 0) {
+        print(d);
+      //    "ScheduleTimeID" -> 325
+      //    "CinemaTimings" -> "12:30"
+      //    "Format" -> "2D"
+      }
     }
   }
 
