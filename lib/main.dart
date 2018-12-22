@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
 
 
-    print(movieData);
+    //print(movieData);
 
 
     final h = MediaQuery.of(context).size.height;
@@ -112,7 +112,7 @@ class _HomeState extends State<Home> {
           child: InkWell(
             onTap: (){
               Navigator.push(c, MaterialPageRoute(builder: (c){
-                return MovieDetail();
+                return MovieDetail(id: movie_packet['ID'], cat_id: cat_packet['CategoryID']);
               }));
             },
             child: Column(
@@ -152,7 +152,7 @@ class _HomeState extends State<Home> {
 
 //  API Calling
   void _fetchMovieData() async {
-      const url = BASE_URL + "Programming/ShowAll";
+      const url = "${BASE_URL}Programming/ShowAll";
 
       var res = await http.get(url);
       if (res.statusCode == 200){

@@ -1,22 +1,69 @@
+import 'package:cinema_booking_app/pick_cinema.dart';
+import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MovieDetail extends StatefulWidget {
+
+  final id;
+  final cat_id;
+  MovieDetail({Key key, this.id, this.cat_id}) : super(key : key);
+
   @override
   _MovieDetailState createState() => _MovieDetailState();
 }
 
 class _MovieDetailState extends State<MovieDetail> {
+
+  var _movie_d;
+  
+  void _fetchMovieDetails() async {
+
+
+    final res = await http.get('${BASE_URL}/Programming/GetMovieByID?MovieID=${widget.id}');
+    if(res.statusCode == 200){
+      final data = json.decode(res.body);
+      setState(() {
+        _movie_d = data;
+      });
+      print(data);
+
+      print('Movie Banner Image ' + _movie_d['HeaderImage']);
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchMovieDetails();
+  }
+
+  
   @override
   Widget build(BuildContext context) {
 
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
 
+    var actors;
+    var trailers;
+
+    if(_movie_d != null){
+      actors = _movie_d['Actors'];
+      trailers = _movie_d['Trailers'];
+    }
+
     return Scaffold(
 
 
-      body:
+      body: _movie_d != null ?
+
+
+
+
+
        SingleChildScrollView(
          child: Column(
            children: <Widget>[
@@ -58,9 +105,9 @@ class _MovieDetailState extends State<MovieDetail> {
                        width: w,
                        child: Column(
                          children: <Widget>[
-                           Text('Movie Name', textAlign: TextAlign.center, style: TextStyle(fontSize: 22.0),),
+                           Text(_movie_d['Name'], textAlign: TextAlign.center, style: TextStyle(fontSize: 22.0),),
                            Padding(padding: EdgeInsets.all(2.0),),
-                           Text('English | 120 min | 2018 | 7.6', textAlign: TextAlign.center,)
+                           Text('${_movie_d['Lang']} | ${_movie_d['Time']} | ${_movie_d['Year']} | ${_movie_d['IMDBRating']}', textAlign: TextAlign.center,)
                          ],
                        )
                        ,
@@ -73,7 +120,7 @@ class _MovieDetailState extends State<MovieDetail> {
 
                  decoration: BoxDecoration(
                    image: DecorationImage(
-                       image: NetworkImage('http://gogophp.binarynumbers.io/assets/movies/thumb/ralphbreaks_thumbnail.jpg'),
+                       image: NetworkImage(_movie_d['HeaderImage']),
                        fit: BoxFit.cover
                    ),
                  )
@@ -108,7 +155,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                        Icon(Icons.arrow_drop_down)
                                      ],),
                                    onTap: (){
-                                     print('hello');
+                                     sendToPickCinemaPage(context);
                                    },
                                  ),
                                )
@@ -134,7 +181,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                    Icon(Icons.calendar_today)
                                  ],),
                                onTap: (){
-                                 print('hello');
+                                 sendToPickCinemaPage(context);
                                },
                              ),
                            )
@@ -168,7 +215,7 @@ class _MovieDetailState extends State<MovieDetail> {
                          height: h * 0.19,
                          child: ListView.builder(
                              scrollDirection: Axis.horizontal,
-                             itemCount: 10,
+                             itemCount: trailers.length,
                              itemBuilder: (context, i){
                                return
                                Padding(
@@ -180,7 +227,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                      width: w * 0.38,
                                      height: h * 0.19,
                                      decoration: BoxDecoration(
-                                         image: DecorationImage(image: NetworkImage('http://gogophp.binarynumbers.io/assets/movies/thumb/ralphbreaks_thumbnail.jpg'),fit : BoxFit.cover),
+                                         image: DecorationImage(image: NetworkImage("https://img.youtube.com/vi/${trailers[i]['URI']}/mqdefault.jpg"),fit : BoxFit.cover),
                                          borderRadius: BorderRadius.circular(8.0)
                                      ),
 
@@ -192,12 +239,12 @@ class _MovieDetailState extends State<MovieDetail> {
 
                        ),
                        Divider(),
-                       Text('6.7', style: TextStyle(color: Color(0xFF099fd5),fontSize: 18.0, fontWeight: FontWeight.bold)),
+                       Text(_movie_d['IMDBRating'], style: TextStyle(color: Color(0xFF099fd5),fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Text('IMDB'),
                        Padding(padding: const EdgeInsets.all(8.0)),
                        Text('Storyline', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Padding(padding: const EdgeInsets.all(8.0)),
-                       Text("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. ", style: TextStyle(fontSize: 14.0)),
+                       Text(_movie_d['StoryLine'], style: TextStyle(fontSize: 14.0)),
                        Divider(),
                        Text('Cast', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Padding(padding: EdgeInsets.all(8.0),),
@@ -207,7 +254,7 @@ class _MovieDetailState extends State<MovieDetail> {
                              data: MediaQuery.of(context).removePadding(
                                removeTop: true),
                              child: ListView.builder(
-                             itemCount: 10,
+                             itemCount: actors.length,
                              itemBuilder: (context, index){
                                return Container(
 //                                 color: Colors.green,
@@ -215,11 +262,11 @@ class _MovieDetailState extends State<MovieDetail> {
                                    leading: CircleAvatar(
                                      radius: 24.0,
                                      backgroundColor: Colors.grey,
-                                     backgroundImage: NetworkImage('http://gogophp.binarynumbers.io/assets/movies/thumb/ralphbreaks_thumbnail.jpg'),
+                                     backgroundImage: NetworkImage(actors[index]['Image']),
 
                                    ),
                                    contentPadding: const EdgeInsets.all(0.0),
-                                   title: Text('hello all'),
+                                   title: Text(actors[index]['Name']),
                                  ),
                                );
                              })
@@ -252,10 +299,14 @@ class _MovieDetailState extends State<MovieDetail> {
            ],
          )
          ,
-       )
-
-
+       ) : Center(child: CircularProgressIndicator(),)
       );
+  }
+
+  void sendToPickCinemaPage(BuildContext c) {
+    Navigator.push(c, MaterialPageRoute(builder: (c){
+      return PickCinema(id: widget.id,cat_id: widget.cat_id);
+    }));
   }
 }
 
