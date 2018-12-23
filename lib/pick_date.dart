@@ -43,11 +43,13 @@ class _PickDateState extends State<PickDate> {
     }
   }
 
-  void _fetchTimeList(c_s_id) async {
+  var display_date = "";
+
+  void _fetchTimeList(mDate, String week_day, String m_n) async {
     setState(() {
       _loading = true;
     });
-
+    var c_s_id = mDate.c_s_id;
     print('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
     final res = await http.get('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
     if (res.statusCode == 200){
@@ -59,7 +61,8 @@ class _PickDateState extends State<PickDate> {
           var t = TimeModel(_d['ScheduleTimeID'], _d['CinemaTimings'], _d['Format']);
           mTimeList.add(t);
         }
-
+        // 23 December, 2018 | Sunday
+        display_date = "${mDate.date} $m_n, ${mDate.year} | $week_day";
         setState(() {
           _loading = false;
         });
@@ -69,7 +72,7 @@ class _PickDateState extends State<PickDate> {
   }
 
 
-
+  DateTimeModel mDate;
 
   Future<Null> _selectDate(BuildContext c) async {
     if(mDateList.length > 0){
@@ -83,8 +86,13 @@ class _PickDateState extends State<PickDate> {
 
       if(picked != null && picked != _dateTime){
         _dateTime = picked;
-        DateTimeModel mDate = mDateList.firstWhere((l){ return (l.month == picked.month && l.year == picked.year && l.date == picked.day);});
-        _fetchTimeList(mDate.c_s_id);
+
+        mDate = mDateList.firstWhere((l){ return (l.month == picked.month && l.year == picked.year && l.date == picked.day);});
+
+
+        _fetchTimeList(mDate,WEEK_DAYS[picked.weekday-1], MONTH_NAME[picked.month-1]);
+
+
       }
     }
   }
@@ -127,7 +135,7 @@ class _PickDateState extends State<PickDate> {
                               color: Colors.grey,
                               borderRadius: BorderRadius.circular(20.0)
                           ),
-                          child: Text('22 December, 2018 | Saturday'),
+                          child: Text(display_date),
                         ),
                         onTap: (){
                           _selectDate(context);
@@ -186,8 +194,7 @@ class _PickDateState extends State<PickDate> {
 
                               ),
                               onTap: (){
-                                Navigator.of(context).pop({'selection':true});
-                                print('hell all');
+                                Navigator.of(context).pop({'s_date':'${MONTH_NAME[_dateTime.month-1]} ${_dateTime.day}, ${_dateTime.year} (${t.c_t_dis} : ${t.t_format})'});
                               },
                             ),
                           ),
@@ -209,7 +216,13 @@ class DateTimeModel{
   var month;
   var date;
   var c_s_id;
+
+
+
+
   DateTimeModel(year, month , date, c_s_id){
+    var _dateTime = new DateTime(year,month,date);
+    print(_dateTime);
     this.year = year;
     this.month = month;
     this.date = date;

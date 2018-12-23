@@ -62,8 +62,9 @@ class _PickCinemaState extends State<PickCinema> {
                       final results = await Navigator.push(context, MaterialPageRoute(builder: (context){
                         return PickDate(id: widget.id,cat_id : widget.cat_id, c_id : c_list[i]['CinemaID']);
                       }));
-                      if (results != null && results.containsKey('selection')) {
-                        Navigator.of(context).pop({'selection':true});
+                      if (results != null && results.containsKey('s_date')) {
+
+                        Navigator.of(context).pop({'s_date':results['results'], 's_cinema' : ''});
                       }
                     },
                   )
