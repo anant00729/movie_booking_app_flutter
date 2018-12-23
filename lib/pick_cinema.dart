@@ -58,10 +58,13 @@ class _PickCinemaState extends State<PickCinema> {
                       title: Text(c_list[i]['CinemaName']),
                       subtitle: Text(c_list[i]['Address']),
                     ),
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                    onTap: () async{
+                      final results = await Navigator.push(context, MaterialPageRoute(builder: (context){
                         return PickDate(id: widget.id,cat_id : widget.cat_id, c_id : c_list[i]['CinemaID']);
                       }));
+                      if (results != null && results.containsKey('selection')) {
+                        Navigator.of(context).pop({'selection':true});
+                      }
                     },
                   )
                 ),

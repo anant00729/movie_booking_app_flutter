@@ -69,6 +69,7 @@ class _HomeState extends State<Home> {
       height: h * 0.40,
 //      color: i % 2 == 0 ? Colors.yellow : Colors.blue,
       child: Container(
+        color: i % 2 == 0 ? Colors.black54 : Colors.black12,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.max,

@@ -18,11 +18,10 @@ class PickDate extends StatefulWidget {
 class _PickDateState extends State<PickDate> {
 
   DateTime _dateTime = new DateTime.now();
-  TimeOfDay _timeOfDay = new TimeOfDay.now();
-
-
 
   List<DateTimeModel> mDateList;
+  List<TimeModel> mTimeList;
+  var _loading = true;
 
   void _fetchDateList() async {
     print('${BASE_URL}Programming/GetDateList?MovieID=${widget.id}&CategoryID=${widget.cat_id}&CinemaID=${widget.c_id}');
@@ -39,12 +38,15 @@ class _PickDateState extends State<PickDate> {
           DateTimeModel da = new DateTimeModel(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]),data['CinemaScheduleID']);
           mDateList.add(da);
         }
-        _fetchTimeList(mDateList[0].c_s_id);
+        _selectDate(context);
       }
     }
   }
 
   void _fetchTimeList(c_s_id) async {
+    setState(() {
+      _loading = true;
+    });
 
     print('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
     final res = await http.get('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
@@ -52,12 +54,16 @@ class _PickDateState extends State<PickDate> {
       final d = json.decode(res.body);
       if(d.length > 0) {
         print(d);
+        mTimeList.clear();
+        for (var _d in d) {
+          var t = TimeModel(_d['ScheduleTimeID'], _d['CinemaTimings'], _d['Format']);
+          mTimeList.add(t);
+        }
 
+        setState(() {
+          _loading = false;
+        });
 
-
-      //    "ScheduleTimeID" -> 325
-      //    "CinemaTimings" -> "12:30"
-      //    "Format" -> "2D"
       }
     }
   }
@@ -88,6 +94,7 @@ class _PickDateState extends State<PickDate> {
   void initState() {
     super.initState();
     mDateList = List();
+    mTimeList = List();
     _fetchDateList();
   }
 
@@ -135,50 +142,60 @@ class _PickDateState extends State<PickDate> {
               ),
 
               Padding( padding: EdgeInsets.all(16.0)),
+              (!_loading && mTimeList != null ?
               Expanded(
-              child: ListView.builder(
-                  itemCount: 10,
-                  itemBuilder: (context,i){
-                    return Column(
-                      children: <Widget>[
-                        ListTile(
-                          leading:
-                          Container(
-                            padding: EdgeInsets.fromLTRB(20.0,4.0,20.0,4.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
+                child: ListView.builder(
+                    itemCount: mTimeList.length,
+                    itemBuilder: (context,i){
+                      var t = mTimeList[i];
+                      return Column(
+                        children: <Widget>[
+                          Material(
+                            type: MaterialType.transparency,
+                            child: InkWell(
+                              child: ListTile(
+                                  leading:
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(20.0,4.0,20.0,4.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
 
-                                Text('Noon | 3D' , style: TextStyle(fontSize: 18)),
-                                RichText(
-                                  text: TextSpan(
+                                        Text('${t.t_eng} | ${t.format}' , style: TextStyle(fontSize: 18)),
+                                        RichText(
+                                          text: TextSpan(
 
-                                      style: DefaultTextStyle.of(context).style,
-                                      children : [
-                                        TextSpan(
-                                            text: "12:30",
-                                            style: TextStyle(fontSize: 28)
+                                              style: DefaultTextStyle.of(context).style,
+                                              children : [
+                                                TextSpan(
+                                                    text: t.c_t_dis,
+                                                    style: TextStyle(fontSize: 28)
+                                                ),
+                                                TextSpan(
+                                                    text: t.t_format,
+                                                    style: TextStyle(fontSize: 12)
+                                                )
+                                              ]
+                                          ),
                                         ),
-                                        TextSpan(
-                                            text: " PM",
-                                            style: TextStyle(fontSize: 12)
-                                        )
-                                      ]
-                                  ),
-                                ),
-                              ],
+                                      ],
+                                    ),
+
+                                  )
+
+                              ),
+                              onTap: (){
+                                Navigator.of(context).pop({'selection':true});
+                                print('hell all');
+                              },
                             ),
-
-                            )
-
-                        ),
-                        Divider()
-                      ],
-                    );
-                  }),
-            )
-
+                          ),
+                          Divider()
+                        ],
+                      );
+                    }),
+              ): Center(child: CircularProgressIndicator()))
         ],
       ),
       )
@@ -201,6 +218,48 @@ class DateTimeModel{
 }
 
 class TimeModel{
+  var s_t_id;
+  var c_t;
+  var c_t_dis;
+  var format;
+  var t_format;
+  var t_eng;
+
+
+  TimeModel(s_t_id,c_t,format){
+    var t = c_t.split(':');
+
+
+    var t_hr;
+    if(int.parse(t[0]) > 12){
+      t_hr = int.parse(t[0]) - 12;
+    }else if(int.parse(t[0]) == 0){
+      t_hr = 12;
+    }else {
+      t_hr = int.parse(t[0]);
+    }
+    this.c_t_dis = '$t_hr:${t[1]}';
+
+
+    var _timeOfDay = TimeOfDay(hour: int.parse(t[0]), minute: int.parse(t[1]));
+
+    if (_timeOfDay.hour < 12) {
+      this.t_format = "AM";
+      this.t_eng = "Morning";
+    }
+    if (_timeOfDay.hour >= 12 && _timeOfDay.hour <= 16) {
+      this.t_format = "PM";
+      this.t_eng = "Noon";
+    }
+    if (_timeOfDay.hour >= 16) {
+      this.t_format = "PM";
+      this.t_eng = "Evening";
+    }
+
+    this.s_t_id = s_t_id;
+    this.c_t = c_t;
+    this.format = format;
+  }
 
 }
 

@@ -303,10 +303,13 @@ class _MovieDetailState extends State<MovieDetail> {
       );
   }
 
-  void sendToPickCinemaPage(BuildContext c) {
-    Navigator.push(c, MaterialPageRoute(builder: (c){
+  void sendToPickCinemaPage(BuildContext c) async {
+    final results = await Navigator.push(c, MaterialPageRoute(builder: (c){
       return PickCinema(id: widget.id,cat_id: widget.cat_id);
     }));
+    if (results != null && results.containsKey('selection')) {
+
+    }
   }
 }
 
