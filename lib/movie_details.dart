@@ -1,4 +1,5 @@
 import 'package:cinema_booking_app/pick_cinema.dart';
+import 'package:cinema_booking_app/seat_select.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,8 @@ class MovieDetail extends StatefulWidget {
 class _MovieDetailState extends State<MovieDetail> {
 
   var _movie_d;
+  var p_cinema;
+  var p_date;
   
   void _fetchMovieDetails() async {
 
@@ -37,7 +40,10 @@ class _MovieDetailState extends State<MovieDetail> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    p_cinema = "Pick Cinema";
+    p_date = "Pick Date";
     _fetchMovieDetails();
+
   }
 
   
@@ -56,13 +62,7 @@ class _MovieDetailState extends State<MovieDetail> {
     }
 
     return Scaffold(
-
-
       body: _movie_d != null ?
-
-
-
-
 
        SingleChildScrollView(
          child: Column(
@@ -151,7 +151,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                      mainAxisSize: MainAxisSize.max,
                                      children: <Widget>[
-                                       Text('Pick Cinema', style: TextStyle(fontSize: 16.0),),
+                                       Text(p_cinema, style: TextStyle(fontSize: 16.0),),
                                        Icon(Icons.arrow_drop_down)
                                      ],),
                                    onTap: (){
@@ -177,7 +177,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                  mainAxisSize: MainAxisSize.max,
                                  children: <Widget>[
-                                   Text('Pick Date', style: TextStyle(fontSize: 16.0),),
+                                   Text(p_date, style: TextStyle(fontSize: 16.0),),
                                    Icon(Icons.calendar_today)
                                  ],),
                                onTap: (){
@@ -299,16 +299,29 @@ class _MovieDetailState extends State<MovieDetail> {
            ],
          )
          ,
-       ) : Center(child: CircularProgressIndicator(),)
+       ) : Center(child: CircularProgressIndicator(),),
+          bottomNavigationBar: FlatButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (c){
+              return SeatSelect();
+            }));
+          }, child: Text('Pick your seats'))
       );
+
   }
+
+
+
+
 
   void sendToPickCinemaPage(BuildContext c) async {
     final results = await Navigator.push(c, MaterialPageRoute(builder: (c){
       return PickCinema(id: widget.id,cat_id: widget.cat_id);
     }));
-    if (results != null && results.containsKey('selection')) {
-
+    if (results != null && results.containsKey('s_date') && results.containsKey('s_cinema')) {
+      setState(() {
+        p_cinema = results['s_cinema']['CinemaName'];
+        p_date = results['s_date'];
+      });
     }
   }
 }

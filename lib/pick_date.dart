@@ -194,7 +194,7 @@ class _PickDateState extends State<PickDate> {
 
                               ),
                               onTap: (){
-                                Navigator.of(context).pop({'s_date':'${MONTH_NAME[_dateTime.month-1]} ${_dateTime.day}, ${_dateTime.year} (${t.c_t_dis} : ${t.t_format})'});
+                                Navigator.of(context).pop({'s_date':'${MONTH_NAME[_dateTime.month-1]} ${_dateTime.day}, ${_dateTime.year} (${t.c_t_dis} ${t.t_format})'});
                               },
                             ),
                           ),
