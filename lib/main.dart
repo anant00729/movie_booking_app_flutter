@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Booking App",
       theme: ThemeData.dark(),
-      home: SeatSelect(),
+      home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -166,4 +166,35 @@ class _HomeState extends State<Home> {
   }
 
 
+}
+
+
+
+class Dummy extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+
+    final h = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: Container(
+        color: Colors.green,
+        height: h * 0.8,
+        child: ListView.builder(itemBuilder: (context,i){
+          return SizedBox(
+
+            width: 10,
+            height: 100,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(child: Text('helloa'),color: Colors.blue,),
+              ],
+            )
+          );
+        })
+      ),
+    );
+  }
 }
