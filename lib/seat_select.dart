@@ -14,6 +14,13 @@ class SeatSelect extends StatefulWidget {
 
 class _SeatSelectState extends State<SeatSelect> {
   List<dynamic> mData;
+  List<dynamic> mS_s;
+  int Qty = 0;
+  int initQty = 5;
+  double total_price = 0.0;
+  List<DeselectSeat> d_l;
+
+
 
   void _fetchSeatLayoutData() async {
     //print('${BASE_URL}Booking/GetSeatLayout/?ScheduleTimeID=186&CinemaScheduleID=188&CategoryID=4&Type=Public');
@@ -27,7 +34,7 @@ class _SeatSelectState extends State<SeatSelect> {
 
       final d = json.decode(res.body);
 
-      print(d);
+
       if(d['Row'] == d['Column']){
         int total = d['SeatLayouts'].length * 2;
 
@@ -76,6 +83,8 @@ class _SeatSelectState extends State<SeatSelect> {
   @override
   void initState() {
     super.initState();
+    mS_s = List();
+    d_l = List();
     _fetchSeatLayoutData();
   }
 
@@ -144,7 +153,7 @@ class _SeatSelectState extends State<SeatSelect> {
 
   Widget BuildSeatLayout(int i, BuildContext context) {
 
-    print(mData[i]);
+
     if (i % 2 == 0){
       return Container(
 //        color: Colors.yellow,
@@ -192,25 +201,26 @@ class _SeatSelectState extends State<SeatSelect> {
                         return SizedBox.fromSize(
                           size: Size(20, 20),
                           child:
-                          InkWell(
-                            child: Card(
-                                color: s.color,
+                            Opacity(opacity: s.opacity,
+                                child:
+                                InkWell(
+                                  child: Card(
+                                      color: s.color,
 //                              color: Colors.black12,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10.0),
-                                        topRight: Radius.circular(10.0))),
-                                child: Center(child: Text(seat[j]['SeatName'], style: s.textStyle,))),
-                            onTap: (){
-                              seat[j]['Status'] = 3;
-                              setState(() {
-                              });
-                              print('hello all');
-                            },
-                          )
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(10.0),
+                                              topRight: Radius.circular(10.0))),
+                                      child: Center(child: Text(seat[j]['SeatName'], style: s.textStyle,))),
+                                  onTap: () async{
+                                    await onSeatSelect(mData,i,j);
+                                    setState(() {
 
+                                    });
+                                  },
+                                )
+                            )
                         );
-
                       }),
                 ),
               ],
@@ -222,30 +232,133 @@ class _SeatSelectState extends State<SeatSelect> {
 
     }
   }
+
+
+
+  Future<void> onSeatSelect(List<dynamic> mData,int k, int j) async {
+
+    var seat = mData[k]['Seats'][j];
+
+    int rowNumber = seat['row_number'];
+    String currency = '\$';
+    //globalAreaCode = "";
+
+
+    if (Qty == 0) {
+
+      if(mS_s.length > 0){
+
+        for (var v in d_l) {
+          var rowList = mData[v.row];
+          var seat1 = rowList['Seats'][v.col];
+          seat1['Status'] = 1;
+        }
+        d_l.clear();
+      }
+      mS_s.clear();
+
+      Qty = initQty;
+      total_price = 0.0;
+
+    }
+
+
+    int leftQty = Qty;
+
+    int five = 0;
+
+
+    if (Qty > 0) {
+      // Qty
+      for (int i = 0; i < Qty; i++) {
+
+
+        if (j != -1) {
+
+          // check the list is at the end or not because at the end it gives the null value
+
+          var rowList = mData[k];
+
+          if (rowList['Seats'].length > j) {
+            var seat1 = rowList['Seats'][j];
+
+            // on the same row
+            if (seat1['row_number'] == rowNumber) {
+
+              // check the next seat is available or not
+              if (seat1['Status'] == 1) {
+
+                if(five < 5){
+                  // prevent the duplication
+                  if (!mS_s.contains(seat1)) {
+                    // change the button text
+                    if (seat1['Price'] != null) {
+                      total_price += seat1['Price'];
+                    }
+                    seat1['Status'] = 3;
+
+                    mS_s.add(seat1);
+                    d_l.add(DeselectSeat(row: k, col: j));
+
+                    --leftQty;
+
+                  } else break;
+                  ++five;
+                } else break;
+              } else break;
+            } else break;
+          } else break;
+        } else break;
+        ++j;
+      }
+
+      Qty = leftQty;
+
+      //tv_number_of_seats.setText(String.valueOf(mSeatList.size()) + "/" + String.valueOf(initQty));
+      //changeButtonText(currency);
+
+//      if (leftQty == 0) {
+//        changeBtnState();
+//
+//
+//      } else {
+//
+//        //disableButton();
+//      }
+
+    }
+  }
 }
 
 
 class SeatStatus {
   var color;
   var textStyle;
+  var opacity;
 
   SeatStatus(s){
     switch(s){
       case 1:
         this.color = Colors.black12;
         this.textStyle = TextStyle(color: Colors.white);
+        this.opacity = 1.0;
         break;
       case 2:
         this.color = Colors.grey;
         this.textStyle = TextStyle(color: Colors.white);
+        this.opacity = 1.0;
         break;
       case 3:
         this.color = Color(0xff90FBDC);
         this.textStyle = TextStyle(color: Colors.black);
+        this.opacity = 1.0;
+
         break;
+      case 0:
       default:
         this.color = Colors.black12;
         this.textStyle = TextStyle(color: Colors.white);
+        this.opacity = 0.0;
         break;
 
     }
@@ -253,7 +366,12 @@ class SeatStatus {
 
 }
 
+class DeselectSeat {
+  int row;
+  int col;
 
+  DeselectSeat({this.row, this.col});
+}
 
 //Expanded(
 //child: MediaQuery(
