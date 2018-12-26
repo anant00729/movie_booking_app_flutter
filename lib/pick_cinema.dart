@@ -1,3 +1,4 @@
+import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/pick_date.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -20,17 +21,25 @@ class _PickCinemaState extends State<PickCinema> {
   var c_list;
 
   void _fetchCinemaList() async {
-    print('${BASE_URL}/Programming/GetCinema?MovieID=${widget.id}&CategoryID=${widget.cat_id}');
-    final res = await http.get('${BASE_URL}/Programming/GetCinema?MovieID=${widget.id}&CategoryID=${widget.cat_id}');
-    if (res.statusCode == 200){
-      final d = json.decode(res.body);
-      print(d);
 
+    final movieId = widget.id;
+    final res =  await http.post("${BASE_URL}GetCinemaList/",
+        body: json.encode({"MovieID": "${movieId}"}),
+        headers: HEADERS
+    );
+
+    final d = json.decode(res.body);
+    CinemaList mCinemaList = CinemaList.fromJson(d);
+
+    print(mCinemaList);
+
+    if(res.statusCode == 200){
       setState(() {
-        c_list = d;
+        c_list = MovieDetails.fromJson(d);
       });
-
     }
+
+
   }
 
   @override

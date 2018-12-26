@@ -1,3 +1,4 @@
+import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/pick_cinema.dart';
 import 'package:cinema_booking_app/seat_select.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
@@ -17,22 +18,25 @@ class MovieDetail extends StatefulWidget {
 
 class _MovieDetailState extends State<MovieDetail> {
 
-  var _movie_d;
+  MovieDetails _movie_d;
   var p_cinema;
   var p_date;
   
   void _fetchMovieDetails() async {
 
+    final movieId = widget.id;
 
-    final res = await http.get('${BASE_URL}/Programming/GetMovieByID?MovieID=${widget.id}');
+    final res =  await http.post("${BASE_URL}GetMovieDetails",
+        body: json.encode({"MovieID": "${movieId}"}),
+        headers: HEADERS
+    );
+
+    final d = json.decode(res.body);
+    MovieDetails mMovieD = MovieDetails.fromJson(d);
     if(res.statusCode == 200){
-      final data = json.decode(res.body);
       setState(() {
-        _movie_d = data;
+        _movie_d = MovieDetails.fromJson(d);
       });
-      print(data);
-
-      print('Movie Banner Image ' + _movie_d['HeaderImage']);
     }
   }
 
@@ -53,15 +57,18 @@ class _MovieDetailState extends State<MovieDetail> {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
 
-    var actors;
-    var trailers;
+    List<Actors> actors;
+    List<Trailers> trailers;
 
     if(_movie_d != null){
-      actors = _movie_d['Actors'];
-      trailers = _movie_d['Trailers'];
+      actors = _movie_d.actors;
+      trailers = _movie_d.trailers;
     }
 
-    return Scaffold(
+    return
+
+
+      Scaffold(
       body: _movie_d != null ?
 
        SingleChildScrollView(
@@ -105,9 +112,9 @@ class _MovieDetailState extends State<MovieDetail> {
                        width: w,
                        child: Column(
                          children: <Widget>[
-                           Text(_movie_d['Name'], textAlign: TextAlign.center, style: TextStyle(fontSize: 22.0),),
+                           Text(_movie_d.Name != null ? _movie_d.Name : '', textAlign: TextAlign.center, style: TextStyle(fontSize: 22.0),),
                            Padding(padding: EdgeInsets.all(2.0),),
-                           Text('${_movie_d['Lang']} | ${_movie_d['Time']} | ${_movie_d['Year']} | ${_movie_d['IMDBRating']}', textAlign: TextAlign.center,)
+                           Text('${_movie_d.Lang} | ${_movie_d.Time} | ${_movie_d.Year} | ${_movie_d.IMDBRating}', textAlign: TextAlign.center,)
                          ],
                        )
                        ,
@@ -120,7 +127,7 @@ class _MovieDetailState extends State<MovieDetail> {
 
                  decoration: BoxDecoration(
                    image: DecorationImage(
-                       image: NetworkImage(_movie_d['HeaderImage']),
+                       image: NetworkImage(_movie_d.HeaderImage != null ?  _movie_d.HeaderImage : ''),
                        fit: BoxFit.cover
                    ),
                  )
@@ -227,7 +234,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                      width: w * 0.38,
                                      height: h * 0.19,
                                      decoration: BoxDecoration(
-                                         image: DecorationImage(image: NetworkImage("https://img.youtube.com/vi/${trailers[i]['URI']}/mqdefault.jpg"),fit : BoxFit.cover),
+                                         image: DecorationImage(image: NetworkImage("https://img.youtube.com/vi/${trailers[i].URI}/mqdefault.jpg"),fit : BoxFit.cover),
                                          borderRadius: BorderRadius.circular(8.0)
                                      ),
 
@@ -239,12 +246,12 @@ class _MovieDetailState extends State<MovieDetail> {
 
                        ),
                        Divider(),
-                       Text(_movie_d['IMDBRating'], style: TextStyle(color: Color(0xFF099fd5),fontSize: 18.0, fontWeight: FontWeight.bold)),
+                       Text(_movie_d.IMDBRating, style: TextStyle(color: Color(0xFF099fd5),fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Text('IMDB'),
                        Padding(padding: const EdgeInsets.all(8.0)),
                        Text('Storyline', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Padding(padding: const EdgeInsets.all(8.0)),
-                       Text(_movie_d['StoryLine'], style: TextStyle(fontSize: 14.0)),
+                       Text(_movie_d.StoryLine, style: TextStyle(fontSize: 14.0)),
                        Divider(),
                        Text('Cast', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
                        Padding(padding: EdgeInsets.all(8.0),),
@@ -262,11 +269,11 @@ class _MovieDetailState extends State<MovieDetail> {
                                    leading: CircleAvatar(
                                      radius: 24.0,
                                      backgroundColor: Colors.grey,
-                                     backgroundImage: NetworkImage(actors[index]['Image']),
+                                     backgroundImage: NetworkImage(actors[index].Image),
 
                                    ),
                                    contentPadding: const EdgeInsets.all(0.0),
-                                   title: Text(actors[index]['Name']),
+                                   title: Text(actors[index].Name),
                                  ),
                                );
                              })

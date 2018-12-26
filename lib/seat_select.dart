@@ -27,22 +27,30 @@ class _SeatSelectState extends State<SeatSelect> {
 
     //final res = await http.get('${BASE_URL}Booking/GetSeatLayout/?ScheduleTimeID=186&CinemaScheduleID=188&CategoryID=4&Type=Public');
 
-    final res = await http.get('http://192.168.1.28:3000/');
+    try{
+
+      final res = await http.get('http://192.168.1.183:3000/');
 
 
-    if(res.statusCode == 200){
+      if(res.statusCode == 200){
 
-      final d = json.decode(res.body);
+        final d = json.decode(res.body);
 
 
-      if(d['Row'] == d['Column']){
-        int total = d['SeatLayouts'].length * 2;
+        if(d['Row'] == d['Column']){
+          int total = d['SeatLayouts'].length * 2;
 
-        mData = await processData(d,total);
-        setState(() {});
+          mData = await processData(d,total);
+          setState(() {});
+        }
+
       }
 
+    }catch(err){
+      print(err);
     }
+
+
   }
 
 
@@ -147,7 +155,10 @@ class _SeatSelectState extends State<SeatSelect> {
           ) : Center(child: CircularProgressIndicator(),)
 
         ],
-      )
+      ),
+      bottomNavigationBar: FlatButton(onPressed: (){
+          print(mS_s);
+      }, child: Text('Confirm your seats'))
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/movie_details.dart';
 import 'package:cinema_booking_app/seat_select.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Booking App",
       theme: ThemeData.dark(),
-      home: SeatSelect(),
+      home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -30,6 +31,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    movieData = List();
     _fetchMovieData();
   }
 
@@ -64,7 +66,7 @@ class _HomeState extends State<Home> {
 
   Widget _h_list_body(BuildContext c, double h, double w, int i) {
 
-    final cat_packet = movieData[i];
+    HomeDataList cat_packet = movieData[i];
 
     return Container(
       height: h * 0.40,
@@ -77,14 +79,14 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Padding(padding: const EdgeInsets.only(left: 16.0,top: 8.0, bottom: 8.0),
-              child: Text(cat_packet['Title'] ,style: TextStyle(fontSize: 18.0))
+              child: Text(cat_packet.Title ,style: TextStyle(fontSize: 18.0))
             ),
             Container(
 //              color: Colors.green,
               height: h * 0.38,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: cat_packet['Movies'].length,
+                  itemCount: cat_packet.movies.length,
                   itemBuilder: (c, i) {
                     return h_list_item(c, h, w, i, cat_packet);
                   }),
@@ -98,9 +100,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget h_list_item(BuildContext c, double h, double w, h_i, cat_packet) {
+  Widget h_list_item(BuildContext c, double h, double w, h_i,HomeDataList cat_packet) {
 
-    final movie_packet = cat_packet['Movies'][h_i];
+    Movie movie_packet = cat_packet.movies[h_i];
 
 
 
@@ -114,7 +116,7 @@ class _HomeState extends State<Home> {
           child: InkWell(
             onTap: (){
               Navigator.push(c, MaterialPageRoute(builder: (c){
-                return MovieDetail(id: movie_packet['ID'], cat_id: cat_packet['CategoryID']);
+                return MovieDetail(id: movie_packet.ID, cat_id: cat_packet.CategoryID);
               }));
             },
             child: Column(
@@ -130,7 +132,7 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
 
                           image: DecorationImage(
-                              image: NetworkImage(movie_packet['Image']),
+                              image: NetworkImage(movie_packet.Image),
                               fit: BoxFit.cover
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(8.0))
@@ -139,7 +141,7 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 Padding(padding: const EdgeInsets.only(top: 8.0),),
-                Text(movie_packet['Name'], textAlign: TextAlign.center,)
+                Text(movie_packet.Name, textAlign: TextAlign.center)
 
               ],
             ),
@@ -150,18 +152,25 @@ class _HomeState extends State<Home> {
   }
 
 
-  var movieData;
+  List<HomeDataList> movieData;
 
 //  API Calling
   void _fetchMovieData() async {
-      const url = "${BASE_URL}Programming/ShowAll";
+      print('${BASE_URL}GetAllShow/');
+      const url = "${BASE_URL}GetAllShow/";
 
       var res = await http.get(url);
       if (res.statusCode == 200){
         final d = json.decode(res.body);
-        setState(() {
-          movieData = d;
-        });
+
+
+        HomeResponse mHome = HomeResponse.fromJson(d);
+        print(mHome);
+        if(mHome.Status){
+          setState(() {
+            movieData = mHome.movieList;
+          });
+        }
       }
   }
 
