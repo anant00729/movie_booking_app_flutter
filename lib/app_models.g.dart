@@ -156,11 +156,12 @@ Map<String, dynamic> _$ActorsToJson(Actors instance) => <String, dynamic>{
 
 CinemaList _$CinemaListFromJson(Map<String, dynamic> json) {
   return CinemaList(
-      Status: json['Status'] as String,
+      Status: json['Status'] as bool,
       Message: json['Message'] as String,
-      cinema: json['Cinema'] == null
-          ? null
-          : Cinema.fromJson(json['Cinema'] as Map<String, dynamic>));
+      cinema: (json['Cinema'] as List)
+          ?.map((e) =>
+              e == null ? null : Cinema.fromJson(e as Map<String, dynamic>))
+          ?.toList());
 }
 
 Map<String, dynamic> _$CinemaListToJson(CinemaList instance) =>
@@ -172,12 +173,15 @@ Map<String, dynamic> _$CinemaListToJson(CinemaList instance) =>
 
 Cinema _$CinemaFromJson(Map<String, dynamic> json) {
   return Cinema(
-      CinemaID: json['CinemaID'] as int,
+      CinemaID: json['CinemaID'] as String,
       CinemaName: json['CinemaName'] as String,
       Address: json['Address'] as String,
       ScreenCount: json['ScreenCount'] as int,
+      OrganizationName: json['OrganizationName'] as String,
       CinemaScheduleID: json['CinemaScheduleID'] as int,
-      OrganizationName: json['OrganizationName'] as String);
+      SchTDate: json['SchTDate'] as String,
+      Format: json['Format'] as String,
+      CinemaTimings: json['CinemaTimings'] as String);
 }
 
 Map<String, dynamic> _$CinemaToJson(Cinema instance) => <String, dynamic>{
@@ -185,6 +189,9 @@ Map<String, dynamic> _$CinemaToJson(Cinema instance) => <String, dynamic>{
       'CinemaName': instance.CinemaName,
       'Address': instance.Address,
       'ScreenCount': instance.ScreenCount,
-      'CinemaScheduleID': instance.CinemaScheduleID,
-      'OrganizationName': instance.OrganizationName
+      'OrganizationName': instance.OrganizationName,
+      'SchTDate': instance.SchTDate,
+      'Format': instance.Format,
+      'CinemaTimings': instance.CinemaTimings,
+      'CinemaScheduleID': instance.CinemaScheduleID
     };

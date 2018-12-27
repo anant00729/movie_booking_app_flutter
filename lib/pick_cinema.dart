@@ -18,7 +18,7 @@ class PickCinema extends StatefulWidget {
 
 class _PickCinemaState extends State<PickCinema> {
 
-  var c_list;
+  List<Cinema> c_list;
 
   void _fetchCinemaList() async {
 
@@ -33,9 +33,9 @@ class _PickCinemaState extends State<PickCinema> {
 
     print(mCinemaList);
 
-    if(res.statusCode == 200){
+    if(res.statusCode == 200 && mCinemaList.Status){
       setState(() {
-        c_list = MovieDetails.fromJson(d);
+        c_list = mCinemaList.cinema;
       });
     }
 
@@ -64,17 +64,17 @@ class _PickCinemaState extends State<PickCinema> {
                   type: MaterialType.transparency,
                   child: InkWell(
                     child: ListTile(
-                      title: Text(c_list[i]['CinemaName']),
-                      subtitle: Text(c_list[i]['Address']),
+                      title: Text(c_list[i].CinemaName),
+                      subtitle: Text(c_list[i].Address),
                     ),
                     onTap: () async{
                       s_cinema = c_list[i];
                       final results = await Navigator.push(context, MaterialPageRoute(builder: (context){
-                        return PickDate(id: widget.id,cat_id : widget.cat_id, c_id : c_list[i]['CinemaID']);
+                        return PickDate(id: widget.id,cat_id : widget.cat_id, c_id : c_list[i].CinemaID);
                       }));
                       if (results != null && results.containsKey('s_date')) {
 
-                        Navigator.of(context).pop({'s_date':results['s_date'], 's_cinema' : s_cinema});
+                        Navigator.of(context).pop({'s_date':results['s_date'], 's_cinema' : s_cinema , 'c_s_id': results['c_s_id']});
                       }
                     },
                   )

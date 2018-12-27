@@ -114,10 +114,10 @@ class Actors{
 // Cinema List
 @JsonSerializable()
 class CinemaList{
-  final String Status;
+  final bool Status;
   final String Message;
   @JsonKey(name: "Cinema")
-  final Cinema cinema;
+  final List<Cinema> cinema;
 
   CinemaList({
     this.Status,this.Message,this.cinema,
@@ -128,14 +128,24 @@ class CinemaList{
 
 @JsonSerializable()
 class Cinema {
-  final int CinemaID;
+
+
+  final String CinemaID;
   final String CinemaName;
   final String Address;
   final int ScreenCount;
-  final int CinemaScheduleID;
   final String OrganizationName;
+  // For Date
+  final String SchTDate;
+  // For Time
+  final String Format;
+  final String CinemaTimings;
 
-  Cinema({this.CinemaID,this.CinemaName,this.Address,this.ScreenCount,this.CinemaScheduleID,this.OrganizationName});
+
+  final int CinemaScheduleID;
+
+
+  Cinema({this.CinemaID,this.CinemaName,this.Address,this.ScreenCount,this.OrganizationName,this.CinemaScheduleID, this.SchTDate,this.Format,this.CinemaTimings});
   factory Cinema.fromJson(Map<String, dynamic> json) => _$CinemaFromJson(json);
 }
 

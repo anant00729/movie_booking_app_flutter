@@ -21,6 +21,7 @@ class _MovieDetailState extends State<MovieDetail> {
   MovieDetails _movie_d;
   var p_cinema;
   var p_date;
+  var c_s_id;
   
   void _fetchMovieDetails() async {
 
@@ -326,8 +327,9 @@ class _MovieDetailState extends State<MovieDetail> {
     }));
     if (results != null && results.containsKey('s_date') && results.containsKey('s_cinema')) {
       setState(() {
-        p_cinema = results['s_cinema']['CinemaName'];
+        p_cinema = results['s_cinema'].CinemaName;
         p_date = results['s_date'];
+        c_s_id = results['c_s_id'];
       });
     }
   }

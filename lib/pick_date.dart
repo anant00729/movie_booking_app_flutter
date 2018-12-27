@@ -1,3 +1,4 @@
+import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,23 +25,54 @@ class _PickDateState extends State<PickDate> {
   var _loading = true;
 
   void _fetchDateList() async {
-    print('${BASE_URL}Programming/GetDateList?MovieID=${widget.id}&CategoryID=${widget.cat_id}&CinemaID=${widget.c_id}');
-    final res = await http.get('${BASE_URL}Programming/GetDateList?MovieID=${widget.id}&CategoryID=${widget.cat_id}&CinemaID=${widget.c_id}');
-    if (res.statusCode == 200){
-      final d = json.decode(res.body);
 
 
+    final movieId = widget.id;
+    final cinemaId = widget.c_id;
+    final res =  await http.post("${BASE_URL}GetShowDate/",
+        body: json.encode({"MovieID": movieId, "CinemaID" : cinemaId}),
+        headers: HEADERS
+    );
 
-      if(d.length > 0) {
+    final d = json.decode(res.body);
+    CinemaList mDateListData = CinemaList.fromJson(d);
+
+    print(mDateListData);
+
+    if(res.statusCode == 200 && mDateListData.Status){
+      print(mDateListData);
+
+      if(mDateListData.cinema.length > 0) {
         mDateList.clear();
-        for (var data in d){
-          final date = data['SchTDate'].split('-');
-          DateTimeModel da = new DateTimeModel(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]),data['CinemaScheduleID']);
+        for (var data in mDateListData.cinema){
+          final date = data.SchTDate.split('-');
+          DateTimeModel da = new DateTimeModel(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]),data.CinemaScheduleID);
           mDateList.add(da);
         }
         _selectDate(context);
       }
+
     }
+
+
+
+//    print('${BASE_URL}Programming/GetDateList?MovieID=${widget.id}&CategoryID=${widget.cat_id}&CinemaID=${widget.c_id}');
+//    final res = await http.get('${BASE_URL}Programming/GetDateList?MovieID=${widget.id}&CategoryID=${widget.cat_id}&CinemaID=${widget.c_id}');
+//    if (res.statusCode == 200){
+//      final d = json.decode(res.body);
+//
+//
+//
+//      if(d.length > 0) {
+//        mDateList.clear();
+//        for (var data in d){
+//          final date = data['SchTDate'].split('-');
+//          DateTimeModel da = new DateTimeModel(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]),data['CinemaScheduleID']);
+//          mDateList.add(da);
+//        }
+//        _selectDate(context);
+//      }
+//    }
   }
 
   var display_date = "";
@@ -50,25 +82,58 @@ class _PickDateState extends State<PickDate> {
       _loading = true;
     });
     var c_s_id = mDate.c_s_id;
-    print('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
-    final res = await http.get('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
-    if (res.statusCode == 200){
-      final d = json.decode(res.body);
-      if(d.length > 0) {
-        print(d);
-        mTimeList.clear();
-        for (var _d in d) {
-          var t = TimeModel(_d['ScheduleTimeID'], _d['CinemaTimings'], _d['Format']);
-          mTimeList.add(t);
-        }
-        // 23 December, 2018 | Sunday
-        display_date = "${mDate.date} $m_n, ${mDate.year} | $week_day";
-        setState(() {
-          _loading = false;
-        });
+    final movieId = widget.id;
+    final cinemaId = widget.c_id;
+    final res =  await http.post("${BASE_URL}GetShowTime/",
+        body: json.encode({"MovieID": movieId, "CinemaID" : cinemaId, "CinemaScheduleID" : c_s_id}),
+        headers: HEADERS
+    );
 
+    final d = json.decode(res.body);
+    CinemaList mTimeData = CinemaList.fromJson(d);
+
+    print(mTimeData);
+
+    if(res.statusCode == 200 && mTimeData.Status){
+
+      mTimeList.clear();
+      for (var d in mTimeData.cinema) {
+        var t = TimeModel(d.CinemaScheduleID, d.CinemaTimings, d.Format);
+        mTimeList.add(t);
       }
+      // 23 December, 2018 | Sunday
+      display_date = "${mDate.date} $m_n, ${mDate.year} | $week_day";
+      setState(() {
+        _loading = false;
+      });
+
+
+
+      print(mTimeData);
     }
+
+
+
+
+//    print('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
+//    final res = await http.get('${BASE_URL}/Programming/GetSchTime?CinemaScheduleID=${c_s_id}&CategoryID=${widget.c_id}');
+//    if (res.statusCode == 200){
+//      final d = json.decode(res.body);
+//      if(d.length > 0) {
+//        print(d);
+//        mTimeList.clear();
+//        for (var _d in d) {
+//          var t = TimeModel(_d['ScheduleTimeID'], _d['CinemaTimings'], _d['Format']);
+//          mTimeList.add(t);
+//        }
+//        // 23 December, 2018 | Sunday
+//        display_date = "${mDate.date} $m_n, ${mDate.year} | $week_day";
+//        setState(() {
+//          _loading = false;
+//        });
+//
+//      }
+//    }
   }
 
 
@@ -77,11 +142,12 @@ class _PickDateState extends State<PickDate> {
   Future<Null> _selectDate(BuildContext c) async {
     if(mDateList.length > 0){
       final l_i = mDateList.length - 1;
+
       final DateTime picked = await showDatePicker(
           context: c,
           initialDate: _dateTime,
-          firstDate: DateTime(mDateList[0].year,mDateList[0].month,mDateList[0].date),
-          lastDate: DateTime(mDateList[l_i].year,mDateList[l_i].month,mDateList[l_i].date)
+          firstDate:  DateTime(mDateList[0].year,mDateList[0].month,mDateList[0].date) ,
+          lastDate: l_i != 0 ? DateTime(mDateList[l_i].year,mDateList[l_i].month,mDateList[l_i].date) : DateTime(mDateList[l_i].year,mDateList[l_i].month,mDateList[l_i].date+1)
       );
 
       if(picked != null && picked != _dateTime){
@@ -194,7 +260,13 @@ class _PickDateState extends State<PickDate> {
 
                               ),
                               onTap: (){
-                                Navigator.of(context).pop({'s_date':'${MONTH_NAME[_dateTime.month-1]} ${_dateTime.day}, ${_dateTime.year} (${t.c_t_dis} ${t.t_format})'});
+                                Navigator.of(context).pop(
+                                    {
+                                      's_date':
+                                    '${MONTH_NAME[_dateTime.month-1]} ${_dateTime.day}, ${_dateTime.year} (${t.c_t_dis} ${t.t_format})',
+                                      'c_s_id':
+                                      t.s_t_id
+                                    });
                               },
                             ),
                           ),
