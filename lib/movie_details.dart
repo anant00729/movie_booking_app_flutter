@@ -308,11 +308,18 @@ class _MovieDetailState extends State<MovieDetail> {
          )
          ,
        ) : Center(child: CircularProgressIndicator(),),
-          bottomNavigationBar: FlatButton(onPressed: (){
+
+          bottomNavigationBar:
+          p_cinema != "Pick Cinema" ? FlatButton(onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (c){
-              return SeatSelect();
+
+              //{"CategoryID": 1, "CinemaScheduleID" : 1243, "ShowType" : ""}
+              final cat_id = widget.cat_id;
+              final c_s_id = this.c_s_id;
+              final show_type = "";
+              return SeatSelect(cat_id: cat_id, c_s_id: c_s_id, show_type: show_type,);
             }));
-          }, child: Text('Pick your seats'))
+          }, child: Text('Pick your seats')) : null
       );
 
   }

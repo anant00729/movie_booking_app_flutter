@@ -24,7 +24,7 @@ class _PickCinemaState extends State<PickCinema> {
 
     final movieId = widget.id;
     final res =  await http.post("${BASE_URL}GetCinemaList/",
-        body: json.encode({"MovieID": "${movieId}"}),
+        body: json.encode({"MovieID": "${movieId}", "CountryID": 1}),
         headers: HEADERS
     );
 
@@ -38,7 +38,6 @@ class _PickCinemaState extends State<PickCinema> {
         c_list = mCinemaList.cinema;
       });
     }
-
 
   }
 

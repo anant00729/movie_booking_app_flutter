@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,14 @@ import 'dart:convert';
 
 
 class SeatSelect extends StatefulWidget {
+
+
+  final cat_id;
+  final c_s_id;
+  final show_type;
+
+  SeatSelect({Key key,this.cat_id,this.c_s_id,this.show_type}) : super(key : key);
+
   @override
   _SeatSelectState createState() => _SeatSelectState();
 }
@@ -23,22 +32,30 @@ class _SeatSelectState extends State<SeatSelect> {
 
 
   void _fetchSeatLayoutData() async {
-    //print('${BASE_URL}Booking/GetSeatLayout/?ScheduleTimeID=186&CinemaScheduleID=188&CategoryID=4&Type=Public');
-
-    //final res = await http.get('${BASE_URL}Booking/GetSeatLayout/?ScheduleTimeID=186&CinemaScheduleID=188&CategoryID=4&Type=Public');
 
     try{
 
-      final res = await http.get('http://192.168.1.183:3000/');
+
+      final cat_id = widget.cat_id;
+      final c_s_id = widget.c_s_id;
+      final show_type = widget.show_type;
+
+
+      final res =  await http.post("${BASE_URL}GetSeatLayout",
+          body: json.encode({"CategoryID": cat_id, "CinemaScheduleID" : c_s_id, "ShowType" : show_type}),
+          headers: HEADERS
+      );
 
 
       if(res.statusCode == 200){
 
-        final d = json.decode(res.body);
 
 
-        if(d['Row'] == d['Column']){
-          int total = d['SeatLayouts'].length * 2;
+        GetSeatLayout d = GetSeatLayout.fromJson(json.decode(res.body));
+
+
+        if(int.parse(d.Row)== int.parse(d.Column)){
+          int total = d.seatLayouts.length * 2;
 
           mData = await processData(d,total);
           setState(() {});
@@ -54,7 +71,7 @@ class _SeatSelectState extends State<SeatSelect> {
   }
 
 
-  Future<List<dynamic>> processData(var d,var total) async {
+  Future<List<dynamic>> processData(GetSeatLayout d,int total) async {
 
     List<dynamic> mData = new List();
 
@@ -64,23 +81,30 @@ class _SeatSelectState extends State<SeatSelect> {
 
       // for odd 1,3,5..
       if(i % 2 == 1){
-        d['SeatLayouts'][c]['column_no'] = d['Column'];
-        d['SeatLayouts'][c]['row_no'] = d['Row'];
+//        d['SeatLayouts'][c]['column_no'] = d['Column'];
+//        d['SeatLayouts'][c]['row_no'] = d['Row'];
+
+        d.seatLayouts[c].col_no = int.parse(d.Column);
+        d.seatLayouts[c].row_no = int.parse(d.Row);
+
         //int k = 0;
-        for (var seat_l in d['SeatLayouts']) {
-          for (int j = 0; j < seat_l['Seats'].length; j++) {
+        for (SeatLayouts seat_l in d.seatLayouts) {
+          for (int j = 0; j < seat_l.seats.length; j++) {
             //var seat = seat_l['Seats'][j];
-            int row = (j / d['Column']).toInt();
-            seat_l['Seats'][j]['row_number'] = row;
+
+            int col = int.parse(d.Column);
+
+            int row = (j / col).toInt();
+            seat_l.seats[j].row_number = row;
           }
           //++k;
         }
-        mData.add(d['SeatLayouts'][c]);
+        mData.add(d.seatLayouts[c]);
         ++c;
       }
       // for even 0,2,4,6
       else {
-        mData.add(d['SeatTypes'][c]);
+        mData.add(d.seatTypes[c]);
       }
     }
 
@@ -157,7 +181,14 @@ class _SeatSelectState extends State<SeatSelect> {
         ],
       ),
       bottomNavigationBar: FlatButton(onPressed: (){
-          print(mS_s);
+
+        if(mS_s.length > 0){
+
+        }else {
+          Scaffold.of(context).showSnackBar(new SnackBar(
+            content: new Text("Please select some seats"),
+          ));
+        }
       }, child: Text('Confirm your seats'))
     );
   }
@@ -168,7 +199,7 @@ class _SeatSelectState extends State<SeatSelect> {
     if (i % 2 == 0){
       return Container(
 //        color: Colors.yellow,
-        height: 30, child: Center(child: Text('${mData[i]['Label']} : \$${mData[i]['Price']}'),),);
+        height: 30, child: Center(child: Text('${mData[i].Type} : \$${mData[i].Price}'),),);
     } else {
 
 
@@ -176,14 +207,16 @@ class _SeatSelectState extends State<SeatSelect> {
 //              child: GridView.builder(
 //                  itemCount: 20,
 //                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 10),
-//                  itemBuilder: (context, i){
+//            itemBuilder: (context, i){
 //                    return Text('hell');
 //                  })
 //            );
 
-      int row_no = mData[i]['row_no'] - 1;
-      int col_no = mData[i]['column_no'] - 1;
-      var seat = mData[i]['Seats'];
+      int row_no = mData[i].row_no - 1;
+      int col_no = mData[i].col_no - 1;
+      List<Seats> seatList = mData[i].seats;
+
+
 
       return
           Container(
@@ -204,11 +237,11 @@ class _SeatSelectState extends State<SeatSelect> {
 
 //                scrollDirection: Axis.horizontal,
                       physics: new NeverScrollableScrollPhysics(),
-                      itemCount: mData[i]['Seats'].length,
+                      itemCount: mData[i].seats.length,
 //gridDelegate: SilverGrid
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 10),
                       itemBuilder: (context, j){
-                        var s = SeatStatus(seat[j]['Status']);
+                        var s = SeatStatus(seatList[j].Status);
                         return SizedBox.fromSize(
                           size: Size(20, 20),
                           child:
@@ -222,7 +255,7 @@ class _SeatSelectState extends State<SeatSelect> {
                                           borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(10.0),
                                               topRight: Radius.circular(10.0))),
-                                      child: Center(child: Text(seat[j]['SeatName'], style: s.textStyle,))),
+                                      child: Center(child: Text(seatList[j].SeatName, style: s.textStyle,))),
                                   onTap: () async{
                                     await onSeatSelect(mData,i,j);
                                     setState(() {
@@ -248,9 +281,9 @@ class _SeatSelectState extends State<SeatSelect> {
 
   Future<void> onSeatSelect(List<dynamic> mData,int k, int j) async {
 
-    var seat = mData[k]['Seats'][j];
+    Seats seat = mData[k].seats[j];
 
-    int rowNumber = seat['row_number'];
+    int rowNumber = seat.row_number;
     String currency = '\$';
     //globalAreaCode = "";
 
@@ -261,8 +294,8 @@ class _SeatSelectState extends State<SeatSelect> {
 
         for (var v in d_l) {
           var rowList = mData[v.row];
-          var seat1 = rowList['Seats'][v.col];
-          seat1['Status'] = 1;
+          Seats seat1 = rowList.seats[v.col];
+          seat1.Status = 1;
         }
         d_l.clear();
       }
@@ -290,23 +323,23 @@ class _SeatSelectState extends State<SeatSelect> {
 
           var rowList = mData[k];
 
-          if (rowList['Seats'].length > j) {
-            var seat1 = rowList['Seats'][j];
+          if (rowList.seats.length > j) {
+            Seats seat1 = rowList.seats[j];
 
             // on the same row
-            if (seat1['row_number'] == rowNumber) {
+            if (seat1.row_number == rowNumber) {
 
               // check the next seat is available or not
-              if (seat1['Status'] == 1) {
+              if (seat1.Status == 1) {
 
                 if(five < 5){
                   // prevent the duplication
                   if (!mS_s.contains(seat1)) {
                     // change the button text
-                    if (seat1['Price'] != null) {
-                      total_price += seat1['Price'];
+                    if (seat1.Price != null) {
+                      total_price += seat1.Price;
                     }
-                    seat1['Status'] = 3;
+                    seat1.Status = 3;
 
                     mS_s.add(seat1);
                     d_l.add(DeselectSeat(row: k, col: j));

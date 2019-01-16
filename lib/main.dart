@@ -1,6 +1,7 @@
 import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/movie_details.dart';
 import 'package:cinema_booking_app/seat_select.dart';
+import 'package:cinema_booking_app/start_booking.dart';
 import 'package:flutter/material.dart';
 import 'utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Booking App",
       theme: ThemeData.dark(),
-      home: Home(),
+      home: StartBooking(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -136,13 +137,11 @@ class _HomeState extends State<Home> {
                               fit: BoxFit.cover
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(8.0))
-
                       )
                   ),
                 ),
                 Padding(padding: const EdgeInsets.only(top: 8.0),),
                 Text(movie_packet.Name, textAlign: TextAlign.center)
-
               ],
             ),
           )
@@ -159,7 +158,11 @@ class _HomeState extends State<Home> {
       print('${BASE_URL}GetAllShow/');
       const url = "${BASE_URL}GetAllShow/";
 
-      var res = await http.get(url);
+      var res = await http.post(url,body: json.encode({"CountryID": 1}));
+
+
+
+
       if (res.statusCode == 200){
         final d = json.decode(res.body);
 

@@ -149,3 +149,87 @@ class Cinema {
   factory Cinema.fromJson(Map<String, dynamic> json) => _$CinemaFromJson(json);
 }
 
+
+
+// Seat Layout
+@JsonSerializable()
+class GetSeatLayout{
+
+
+  final bool Status;
+  final String Message;
+  final String Row;
+  final String Column;
+  final String CinemaName;
+  final String Address;
+  final String Currency;
+  final String ScreenName;
+  final int ConFee;
+
+  @JsonKey(name: "SeatLayouts")
+  final List<SeatLayouts> seatLayouts;
+
+  @JsonKey(name: "SeatTypes")
+  final List<SeatTypes> seatTypes;
+
+
+
+  GetSeatLayout({this.Status, this.Message, this.Row, this.Column, this.CinemaName, this.Address,this.Currency,this.ScreenName,this.ConFee,this.seatLayouts,this.seatTypes});
+
+
+  factory GetSeatLayout.fromJson(Map<String, dynamic> json) => _$GetSeatLayoutFromJson(json);
+
+
+}
+
+@JsonSerializable()
+class SeatLayouts{
+
+  @JsonKey(name: "Seats")
+  final List<Seats> seats;
+
+  int col_no;
+  int row_no;
+
+  SeatLayouts({this.seats});
+
+  factory SeatLayouts.fromJson(Map<String, dynamic> json) => _$SeatLayoutsFromJson(json);
+
+}
+
+
+@JsonSerializable()
+class SeatTypes{
+
+  final int SeatClassPriceID;
+  final int SeatClassID;
+  final double Price;
+  final String Type;
+  final String Label;
+
+
+
+  SeatTypes({this.SeatClassPriceID,this.SeatClassID,this.Price,this.Type,this.Label});
+
+  factory SeatTypes.fromJson(Map<String, dynamic> json) => _$SeatTypesFromJson(json);
+}
+
+@JsonSerializable()
+class Seats{
+
+  final String Column;
+  final String SeatName;
+  int Status;
+  final String SeatlayoutID;
+  final String SeatClassID;
+  final double Price;
+
+  int row_number;
+
+
+  Seats({this.Column,this.SeatName,this.Status,this.SeatlayoutID,this.SeatClassID,this.Price});
+
+  factory Seats.fromJson(Map<String, dynamic> json) => _$SeatsFromJson(json);
+
+}
+

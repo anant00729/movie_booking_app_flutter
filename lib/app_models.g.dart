@@ -195,3 +195,93 @@ Map<String, dynamic> _$CinemaToJson(Cinema instance) => <String, dynamic>{
       'CinemaTimings': instance.CinemaTimings,
       'CinemaScheduleID': instance.CinemaScheduleID
     };
+
+GetSeatLayout _$GetSeatLayoutFromJson(Map<String, dynamic> json) {
+  return GetSeatLayout(
+      Status: json['Status'] as bool,
+      Message: json['Message'] as String,
+      Row: json['Row'] as String,
+      Column: json['Column'] as String,
+      CinemaName: json['CinemaName'] as String,
+      Address: json['Address'] as String,
+      Currency: json['Currency'] as String,
+      ScreenName: json['ScreenName'] as String,
+      ConFee: json['ConFee'] as int,
+      seatLayouts: (json['SeatLayouts'] as List)
+          ?.map((e) => e == null
+              ? null
+              : SeatLayouts.fromJson(e as Map<String, dynamic>))
+          ?.toList(),
+      seatTypes: (json['SeatTypes'] as List)
+          ?.map((e) =>
+              e == null ? null : SeatTypes.fromJson(e as Map<String, dynamic>))
+          ?.toList());
+}
+
+Map<String, dynamic> _$GetSeatLayoutToJson(GetSeatLayout instance) =>
+    <String, dynamic>{
+      'Status': instance.Status,
+      'Message': instance.Message,
+      'Row': instance.Row,
+      'Column': instance.Column,
+      'CinemaName': instance.CinemaName,
+      'Address': instance.Address,
+      'Currency': instance.Currency,
+      'ScreenName': instance.ScreenName,
+      'ConFee': instance.ConFee,
+      'SeatLayouts': instance.seatLayouts,
+      'SeatTypes': instance.seatTypes
+    };
+
+SeatLayouts _$SeatLayoutsFromJson(Map<String, dynamic> json) {
+  return SeatLayouts(
+      seats: (json['Seats'] as List)
+          ?.map((e) =>
+              e == null ? null : Seats.fromJson(e as Map<String, dynamic>))
+          ?.toList());
+}
+
+Map<String, dynamic> _$SeatLayoutsToJson(SeatLayouts instance) =>
+    <String, dynamic>{
+      'Seats': instance.seats,
+      'col_no': instance.col_no,
+      'row_no': instance.row_no
+    };
+
+SeatTypes _$SeatTypesFromJson(Map<String, dynamic> json) {
+  return SeatTypes(
+      SeatClassPriceID: json['SeatClassPriceID'] as int,
+      SeatClassID: json['SeatClassID'] as int,
+      Price: (json['Price'] as num)?.toDouble(),
+      Type: json['Type'] as String,
+      Label: json['Label'] as String);
+}
+
+Map<String, dynamic> _$SeatTypesToJson(SeatTypes instance) => <String, dynamic>{
+      'SeatClassPriceID': instance.SeatClassPriceID,
+      'SeatClassID': instance.SeatClassID,
+      'Price': instance.Price,
+      'Type': instance.Type,
+      'Label': instance.Label
+    };
+
+Seats _$SeatsFromJson(Map<String, dynamic> json) {
+  return Seats(
+      Column: json['Column'] as String,
+      SeatName: json['SeatName'] as String,
+      Status: json['Status'] as int,
+      SeatlayoutID: json['SeatlayoutID'] as String,
+      SeatClassID: json['SeatClassID'] as String,
+      Price: (json['Price'] as num)?.toDouble());
+      //..row_number = json['row_number'] as int;
+}
+
+Map<String, dynamic> _$SeatsToJson(Seats instance) => <String, dynamic>{
+      'Column': instance.Column,
+      'SeatName': instance.SeatName,
+      'Status': instance.Status,
+      'SeatlayoutID': instance.SeatlayoutID,
+      'SeatClassID': instance.SeatClassID,
+      'Price': instance.Price,
+      'row_number': instance.row_number
+    };

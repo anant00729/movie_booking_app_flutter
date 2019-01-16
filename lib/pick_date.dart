@@ -29,8 +29,9 @@ class _PickDateState extends State<PickDate> {
 
     final movieId = widget.id;
     final cinemaId = widget.c_id;
+    final cat_id = widget.cat_id;
     final res =  await http.post("${BASE_URL}GetShowDate/",
-        body: json.encode({"MovieID": movieId, "CinemaID" : cinemaId}),
+        body: json.encode({"MovieID": movieId, "CinemaID" : cinemaId,"CountryID": 1, "CategoryID": cat_id}),
         headers: HEADERS
     );
 
@@ -49,6 +50,8 @@ class _PickDateState extends State<PickDate> {
           DateTimeModel da = new DateTimeModel(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]),data.CinemaScheduleID);
           mDateList.add(da);
         }
+
+        this._dateTime = DateTime(mDateList[0].year,mDateList[0].month,mDateList[0].date);
         _selectDate(context);
       }
 
@@ -146,7 +149,7 @@ class _PickDateState extends State<PickDate> {
       final DateTime picked = await showDatePicker(
           context: c,
           initialDate: _dateTime,
-          firstDate:  DateTime(mDateList[0].year,mDateList[0].month,mDateList[0].date) ,
+          firstDate:  DateTime(mDateList[0].year,mDateList[0].month,mDateList[0].date),
           lastDate: l_i != 0 ? DateTime(mDateList[l_i].year,mDateList[l_i].month,mDateList[l_i].date) : DateTime(mDateList[l_i].year,mDateList[l_i].month,mDateList[l_i].date+1)
       );
 
@@ -247,7 +250,7 @@ class _PickDateState extends State<PickDate> {
                                                     style: TextStyle(fontSize: 28)
                                                 ),
                                                 TextSpan(
-                                                    text: t.t_format,
+                                                    text: " ${t.t_format}",
                                                     style: TextStyle(fontSize: 12)
                                                 )
                                               ]
