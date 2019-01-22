@@ -1,11 +1,12 @@
+import 'dart:convert';
+
 import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/movie_details.dart';
-import 'package:cinema_booking_app/seat_select.dart';
 import 'package:cinema_booking_app/start_booking.dart';
 import 'package:flutter/material.dart';
-import 'utils/constants.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+import 'utils/constants.dart';
 
 
 void main() => runApp(MyApp());
