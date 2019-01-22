@@ -40,6 +40,8 @@ class _SeatSelectState extends State<SeatSelect> {
       final c_s_id = widget.c_s_id;
       final show_type = widget.show_type;
 
+      print('POST --->' + "${BASE_URL}GetSeatLayout");
+      print('json --->'  +  json.encode({"CategoryID": cat_id, "CinemaScheduleID" : c_s_id, "ShowType" : show_type}));
 
       final res =  await http.post("${BASE_URL}GetSeatLayout",
           body: json.encode({"CategoryID": cat_id, "CinemaScheduleID" : c_s_id, "ShowType" : show_type}),

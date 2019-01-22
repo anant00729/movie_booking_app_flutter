@@ -110,6 +110,12 @@ class _StartBookingState extends State<StartBooking> {
 
                 //17 January, 2019 (Thrusday)\nNoon | 2D | 01:00 PM
 
+                    Container(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text('You need to pay: HKD 123'),
+
+                    )
+
 
                   ],
                 ),
