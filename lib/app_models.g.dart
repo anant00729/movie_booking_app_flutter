@@ -250,7 +250,7 @@ Map<String, dynamic> _$SeatLayoutsToJson(SeatLayouts instance) =>
 
 SeatTypes _$SeatTypesFromJson(Map<String, dynamic> json) {
   return SeatTypes(
-      SeatClassPriceID: json['SeatClassPriceID'] as int,
+      SeatClassPriceID: json['SeatClassPriceID'] as String,
       SeatClassID: json['SeatClassID'] as int,
       Price: (json['Price'] as num)?.toDouble(),
       Type: json['Type'] as String,

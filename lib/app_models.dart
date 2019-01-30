@@ -201,7 +201,7 @@ class SeatLayouts{
 @JsonSerializable()
 class SeatTypes{
 
-  final int SeatClassPriceID;
+  final String SeatClassPriceID;
   final int SeatClassID;
   final double Price;
   final String Type;
