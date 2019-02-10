@@ -24,7 +24,7 @@ class _StartBookingState extends State<StartBooking> {
           child: Card(
               margin: const EdgeInsets.only(right: 14, left: 14, top: 32, bottom: 0),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(10.0),
               ),
               child: Container(
 //            color: Colors.pinkAccent,

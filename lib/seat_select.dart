@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cinema_booking_app/app_models.dart';
+import 'package:cinema_booking_app/start_booking.dart';
 import 'package:cinema_booking_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -185,7 +186,9 @@ class _SeatSelectState extends State<SeatSelect> {
       bottomNavigationBar: FlatButton(onPressed: (){
 
         if(mS_s.length > 0){
-
+          Navigator.push(context, MaterialPageRoute(builder: (c){
+            return StartBooking();
+          }));
         }else {
           Scaffold.of(context).showSnackBar(new SnackBar(
             content: new Text("Please select some seats"),

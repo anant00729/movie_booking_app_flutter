@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:cinema_booking_app/app_models.dart';
 import 'package:cinema_booking_app/movie_details.dart';
+import 'package:cinema_booking_app/pizza_page.dart';
 import 'package:cinema_booking_app/start_booking.dart';
+import 'package:cinema_booking_app/select_payment.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Booking App",
       theme: ThemeData.dark(),
-      home: StartBooking(),
+      home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -39,7 +41,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-
 
     //print(movieData);
 
